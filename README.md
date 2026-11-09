@@ -66,10 +66,32 @@ https://revertgate.github.io/#pricing
 | `suppression-added` | warn | `eslint-disable`, `@ts-ignore`, `# noqa`, `#[allow]` … |
 | `error-swallowed` | warn | Empty `catch`, `except: pass`, discarded errors |
 | `test-command-changed` | warn | The `test` script in package.json changed |
+| `sorry-added` | block | Lean: a new `sorry` or `admit`, so the goal is assumed, not proved |
+| `axiom-added` | block | Lean: a new `axiom`, `@[implemented_by]`, `@[extern]` or `debug.skipKernelTC` |
+| `required-theorem-changed` | block | Lean: a required theorem's statement changed or it disappeared, or a definition it talks about changed |
+| `native-decide-added` | warn | Lean: `native_decide` trusts compiled code instead of the kernel |
+| `theorem-changed` | warn | Lean: a theorem's statement changed |
+| `theorem-removed` | warn | Lean: a theorem disappeared from the PR's changed `.lean` files |
+| `definition-changed` | warn | Lean: a definition, or the `variable` binders, changed |
 
 Override any severity in `.revertgate.toml` under `[rules]` (`block`, `warn`, `off`). Revertgate reads
 that file **from the base commit**, so a PR can't relax its own check. A maintainer can add
 the `revertgate-override` label to merge past blocking findings; they are still reported.
+
+### Lean 4 proofs
+
+Proof files get the same treatment as tests: `.lean` files are compared at base and head as
+text, with no Lean toolchain needed. To protect your key guarantees, list them; Revertgate
+reads the list from the base commit:
+
+```toml
+[lean]
+required = ["Shop.total_nonneg"]          # namespace-qualified, or just the name
+required_file = "proofs/REQUIRED_THEOREMS" # one name per line; text after it is ignored
+```
+
+These are text checks, not a proof checker: against a hostile author, also rebuild the proofs
+with lean4checker.
 
 ## Limits
 
