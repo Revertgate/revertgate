@@ -1,0 +1,18 @@
+Revertgate licence
+
+Copyright (c) 2026 the Revertgate authors. All rights reserved.
+
+You may use this action and the binary it contains, without charge:
+  - in workflows on public GitHub repositories, and
+  - on your own computer.
+
+Use in workflows on private repositories requires an active subscription, with its licence
+key supplied through the action's `license-key` input.
+
+You may not redistribute, sell, sublicense, modify or reverse engineer the binary, or remove
+or work around its licence check.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.

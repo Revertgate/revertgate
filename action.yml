@@ -1,0 +1,39 @@
+name: Revertgate
+description: Proves AI-written pull requests. The tests must catch the change, and nothing may be weakened to get a pass.
+author: Revertgate
+branding:
+  icon: check-circle
+  color: green
+inputs:
+  license-key:
+    description: Licence key. Only private repositories need one.
+    required: false
+    default: ''
+  test:
+    description: Test command. Defaults to `test` in .revertgate.toml, then to detection.
+    required: false
+    default: ''
+  comment:
+    description: Post the report as a PR comment, updated on every push.
+    required: false
+    default: 'true'
+  override-label:
+    description: The label a maintainer adds to merge past blocking findings.
+    required: false
+    default: revertgate-override
+runs:
+  using: composite
+  steps:
+    - name: Revertgate
+      shell: bash
+      env:
+        REVERTGATE_LICENSE_KEY: ${{ inputs.license-key }}
+        REVERTGATE_REPO_PRIVATE: ${{ github.event.repository.private }}
+        REVERTGATE_TEST: ${{ inputs.test }}
+        REVERTGATE_COMMENT: ${{ inputs.comment }}
+        REVERTGATE_OVERRIDE: ${{ contains(github.event.pull_request.labels.*.name, inputs.override-label) }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+      run: bash "${{ github.action_path }}/run.sh"
