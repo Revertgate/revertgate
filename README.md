@@ -38,7 +38,7 @@ Add `.revertgate.toml` with your test command (`test = "npm test"`), commit both
 then make the `revertgate` check **required** in branch protection.
 
 Free for public repositories. Private repositories need a subscription:
-https://revertgate.dev/#pricing
+https://revertgate.github.io/#pricing
 
 ## Inputs
 
