@@ -56,6 +56,7 @@ https://revertgate.github.io/#pricing
 | `unproven-change` | block | With the code change reverted, the tests still pass |
 | `tests-failing` | block | The tests fail on the PR, so nothing can be proven |
 | `skip-added` / `focus-added` | block | A new skip, `xit`, `#[ignore]`, `.only`, `fit` … |
+| `skip-conditional` | warn | A skip guarded by a condition (`skipif`, `#[ignore = "needs postgres"]`, a skip inside an `if`): usually about the environment, so check the condition |
 | `tests-removed` | block | Net loss of tests across the PR, or a deleted test file |
 | `assertions-removed` | block | Net loss of assertions across the PR's test files |
 | `gate-tampered` | block | `continue-on-error`, `--passWithNoTests`, `\|\| true`, removed test steps … |
