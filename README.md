@@ -2,10 +2,16 @@
 
 **Merge AI pull requests with proof, not hope.**
 
-Revertgate is a GitHub check for pull requests written by coding agents (Copilot, Claude Code,
-Cursor, Codex, Devin…). It reverts the PR's code and reruns your tests: if they still pass,
-the tests don't exercise the change, and the PR is blocked. It also blocks the shortcuts an
-agent takes to get a green tick: skipped, deleted and weakened tests, and a switched-off gate.
+Agents like Claude Fable 5.2 write far more code, far faster, than anyone can review.
+Revertgate proves their tests actually test the change. It is a GitHub check that reverts the
+PR's code and reruns your tests: if they still pass, the tests don't exercise the change, and
+the PR is blocked. It also blocks the shortcuts an agent takes to get a green tick: skipped,
+deleted and weakened tests, and a switched-off gate.
+
+**Works with any agent or model:** Claude Fable, Claude Opus, Claude Code, GitHub Copilot
+agent, Cursor, Devin, Jules, Codex and other GPT-based agents, local models, and humans. The
+check is deterministic and looks only at the diff and what your tests do, so it doesn't matter who
+or what wrote the PR.
 
 No LLM is involved. The same PR always gets the same verdict, and your code never leaves your
 CI runner.
