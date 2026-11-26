@@ -1,0 +1,44 @@
+name: Field report
+description: Revertgate got a real pull request wrong, or its message was confusing.
+labels: ["field-report"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong?
+      options:
+        - It blocked a PR whose tests were fine (false block)
+        - It passed a PR it should have blocked (missed cheat)
+        - The verdict was right but the message was confusing
+    validations:
+      required: true
+  - type: textarea
+    id: pr
+    attributes:
+      label: What the PR did
+      description: In general terms. Leave out anything private.
+    validations:
+      required: true
+  - type: textarea
+    id: said
+    attributes:
+      label: What Revertgate said
+      description: The finding and its message, copied from the check.
+    validations:
+      required: true
+  - type: textarea
+    id: truth
+    attributes:
+      label: What was actually true
+    validations:
+      required: true
+  - type: input
+    id: stack
+    attributes:
+      label: Language and test runner
+      placeholder: e.g. Python + pytest, Rust + cargo test
+  - type: input
+    id: version
+    attributes:
+      label: Revertgate version
+      placeholder: e.g. v0.3.1
