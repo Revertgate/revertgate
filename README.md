@@ -61,6 +61,7 @@ https://revertgate.github.io/#pricing
 |---|---|---|
 | `unproven-change` | block | With the code change reverted, the tests still pass |
 | `tests-failing` | block | The tests fail on the PR, so nothing can be proven |
+| `new-tests-not-run` | block | The PR adds test files the base branch's test command never runs (found by swapping them for a file that can't parse), so the revert check couldn't check them. Reported instead of `unproven-change` |
 | `skip-added` / `focus-added` | block | A new skip, `xit`, `#[ignore]`, `.only`, `fit` … |
 | `skip-conditional` | warn | A skip guarded by a condition (`skipif`, `#[ignore = "needs postgres"]`, a skip inside an `if`): usually about the environment, so check the condition |
 | `tests-removed` | block | Net loss of tests across the PR, or a deleted test file |
@@ -99,6 +100,17 @@ required_file = "proofs/REQUIRED_THEOREMS" # one name per line; text after it is
 
 These are text checks, not a proof checker: against a hostile author, also rebuild the proofs
 with lean4checker.
+
+## Troubleshooting
+
+**`new-tests-not-run`: "this PR adds test files that the base branch's test command did not run".**
+Revertgate runs the test command from the base branch, so a PR can't change how it is checked.
+If that command names its test files one by one (`pytest tests/test_a.py tests/test_b.py`, a
+script that lists them), the files a PR adds never run, and the revert check can't tell
+whether they test the change. Revertgate confirms this by swapping each new test file for a
+line that can't parse and rerunning the command: if it still passes, the files weren't run.
+Fix it by letting the runner discover tests itself (`pytest`, `jest`, `go test ./...`), or by
+merging the change to the test command in its own PR first, then rebasing this one.
 
 ## Limits
 
