@@ -68,6 +68,7 @@ https://revertgate.github.io/#pricing
 | `assertions-removed` | block | Net loss of assertions across the PR's test files |
 | `gate-tampered` | block | `continue-on-error`, `--passWithNoTests`, `\|\| true`, removed test steps … |
 | `revertgate-config-changed` | block | The PR edits Revertgate's own config or workflow |
+| `banned-pattern` | block | An added line matches one of your `[[ban]]` patterns (see below) |
 | `untested-file` | warn | Reverting this one file alone doesn't fail any test |
 | `no-tests` | warn | Code changed and no test did |
 | `matcher-loosened` | warn | An exact assertion swapped for a truthiness check |
@@ -85,6 +86,24 @@ https://revertgate.github.io/#pricing
 Override any severity in `.revertgate.toml` under `[rules]` (`block`, `warn`, `off`). Revertgate reads
 that file **from the base commit**, so a PR can't relax its own check. A maintainer can add
 the `revertgate-override` label to merge past blocking findings; they are still reported.
+
+### Banned patterns
+
+Ban code your repository doesn't want, with one `[[ban]]` entry per pattern in
+`.revertgate.toml`:
+
+```toml
+[[ban]]
+pattern = 'useEffect\('                           # a regex, required
+paths = ["src/**/*.tsx"]                          # optional globs; absent = every changed file
+message = "useEffect is banned in product code"   # optional, shown in the finding
+```
+
+Only lines the PR **adds** are checked, so existing uses in the base don't fail a PR; each
+matching line is one `banned-pattern` finding with its file and line. Files under `ignore` are
+skipped, and `[rules] banned-pattern` changes the severity like any other rule. A bad regex,
+an empty pattern or a bad glob stops the check with an error naming the entry. Patterns use
+Rust's `regex` syntax, which matches in linear time (no backreferences or lookaround).
 
 ### Lean 4 proofs
 
@@ -111,6 +130,33 @@ whether they test the change. Revertgate confirms this by swapping each new test
 line that can't parse and rerunning the command: if it still passes, the files weren't run.
 Fix it by letting the runner discover tests itself (`pytest`, `jest`, `go test ./...`), or by
 merging the change to the test command in its own PR first, then rebasing this one.
+
+## Run history
+
+Each `revertgate check` that reaches a verdict (pass, block, or skipped because no code
+changed) appends one JSON line to a local file. It records the time, Revertgate version,
+repository path and name, `--base`, the short head commit, the verdict, the revert-check
+outcome (`proven`, `still-pass`, `skipped-no-code`, ...), each finding's rule, severity and
+file, the number of changed files and how long the run took. It records no source code,
+diff text, finding messages or test output.
+
+The file is `%LOCALAPPDATA%\revertgate\history.jsonl` on Windows, and
+`$XDG_STATE_HOME/revertgate/history.jsonl` (or `~/.local/state/revertgate/history.jsonl`)
+elsewhere. It stays on your machine: Revertgate never sends it anywhere. Writing it never
+changes a verdict or exit code; if it can't be written you get one warning on stderr.
+
+- `REVERTGATE_HISTORY=/some/path.jsonl` writes there instead.
+- `REVERTGATE_HISTORY=off` (or `0`, `false`) turns it off.
+- When `CI` is set it is off, since runners are thrown away, unless `REVERTGATE_HISTORY` is
+  a path.
+- `history = false` in `.revertgate.toml` turns it off for that repository. Like the rest of
+  the config, it is read from the base commit.
+
+`revertgate history` summarises the runs of the current repository: how many, the date
+range, counts by verdict and revert outcome, the rules that fired most (block and warn
+counts), and the last 10 runs. `--all` covers every repository, with a line per repository;
+`--limit N` lists N recent runs; `--json` prints the matching records as a JSON array.
+Unreadable lines are skipped and counted.
 
 ## Limits
 
