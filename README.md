@@ -68,6 +68,7 @@ https://revertgate.github.io/#pricing
 | `assertions-removed` | block | Net loss of assertions across the PR's test files |
 | `gate-tampered` | block | `continue-on-error`, `--passWithNoTests`, `\|\| true`, removed test steps … |
 | `revertgate-config-changed` | block | The PR edits Revertgate's own config or workflow |
+| `banned-pattern` | block | An added line matches one of your `[[ban]]` patterns (see below) |
 | `untested-file` | warn | Reverting this one file alone doesn't fail any test |
 | `no-tests` | warn | Code changed and no test did |
 | `matcher-loosened` | warn | An exact assertion swapped for a truthiness check |
@@ -85,6 +86,24 @@ https://revertgate.github.io/#pricing
 Override any severity in `.revertgate.toml` under `[rules]` (`block`, `warn`, `off`). Revertgate reads
 that file **from the base commit**, so a PR can't relax its own check. A maintainer can add
 the `revertgate-override` label to merge past blocking findings; they are still reported.
+
+### Banned patterns
+
+Ban code your repository doesn't want, with one `[[ban]]` entry per pattern in
+`.revertgate.toml`:
+
+```toml
+[[ban]]
+pattern = 'useEffect\('                           # a regex, required
+paths = ["src/**/*.tsx"]                          # optional globs; absent = every changed file
+message = "useEffect is banned in product code"   # optional, shown in the finding
+```
+
+Only lines the PR **adds** are checked, so existing uses in the base don't fail a PR; each
+matching line is one `banned-pattern` finding with its file and line. Files under `ignore` are
+skipped, and `[rules] banned-pattern` changes the severity like any other rule. A bad regex,
+an empty pattern or a bad glob stops the check with an error naming the entry. Patterns use
+Rust's `regex` syntax, which matches in linear time (no backreferences or lookaround).
 
 ### Lean 4 proofs
 
