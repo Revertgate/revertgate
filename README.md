@@ -112,6 +112,33 @@ line that can't parse and rerunning the command: if it still passes, the files w
 Fix it by letting the runner discover tests itself (`pytest`, `jest`, `go test ./...`), or by
 merging the change to the test command in its own PR first, then rebasing this one.
 
+## Run history
+
+Each `revertgate check` that reaches a verdict (pass, block, or skipped because no code
+changed) appends one JSON line to a local file. It records the time, Revertgate version,
+repository path and name, `--base`, the short head commit, the verdict, the revert-check
+outcome (`proven`, `still-pass`, `skipped-no-code`, ...), each finding's rule, severity and
+file, the number of changed files and how long the run took. It records no source code,
+diff text, finding messages or test output.
+
+The file is `%LOCALAPPDATA%\revertgate\history.jsonl` on Windows, and
+`$XDG_STATE_HOME/revertgate/history.jsonl` (or `~/.local/state/revertgate/history.jsonl`)
+elsewhere. It stays on your machine: Revertgate never sends it anywhere. Writing it never
+changes a verdict or exit code; if it can't be written you get one warning on stderr.
+
+- `REVERTGATE_HISTORY=/some/path.jsonl` writes there instead.
+- `REVERTGATE_HISTORY=off` (or `0`, `false`) turns it off.
+- When `CI` is set it is off, since runners are thrown away, unless `REVERTGATE_HISTORY` is
+  a path.
+- `history = false` in `.revertgate.toml` turns it off for that repository. Like the rest of
+  the config, it is read from the base commit.
+
+`revertgate history` summarises the runs of the current repository: how many, the date
+range, counts by verdict and revert outcome, the rules that fired most (block and warn
+counts), and the last 10 runs. `--all` covers every repository, with a line per repository;
+`--limit N` lists N recent runs; `--json` prints the matching records as a JSON array.
+Unreadable lines are skipped and counted.
+
 ## Limits
 
 - A flaky suite can fake either answer.
